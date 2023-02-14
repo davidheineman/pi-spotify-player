@@ -7,6 +7,7 @@ import os
 import sys
 from spotipy.oauth2 import SpotifyOAuth
 from time import sleep
+from datetime import datetime
 
 os.chdir(os.path.dirname(sys.argv[0]))
 
@@ -26,6 +27,9 @@ config['DEVICE_ID'] = None
 # config['TAG_TYPE'] may be RFID or NTAG. Set to NTAG if using encrypted
 # NFC tags, such that the tag values are stored on the pi, rather than
 # writing the contents of the NFC tag.
+
+# Global variable to track the most recently scanned tag
+last_used = None
 
 def setup():
     if config['TAG_TYPE'] == "NTAG":
@@ -60,6 +64,11 @@ def switch_context(sp, context_uri):
         sp.start_playback(device_id=config['DEVICE_ID'], uris=[f'{context_uri}'])
     else:
         sp.start_playback(device_id=config['DEVICE_ID'], context_uri=f'{context_uri}')
+    global last_used 
+    last_used = {
+        'uri': context_uri,
+        'time': datetime.now()
+    }
 
 def write_card(reader, sp):
     # Get the currently playing playlist id
@@ -132,6 +141,10 @@ def scan_card(reader, sp):
         if 'write' in text:
             write_card(reader, sp)
     else:
+        # Check to make sure we're not double-scanning the same card
+        if last_used is not None:
+            if last_used['uri'] == text and (datetime.now() - last_used['time']).seconds < config['TIME_WAIT']:
+                return
         switch_context(sp, text)
 
 while True:

@@ -11,7 +11,7 @@ It supports classical read/write `RFID` tags, and secure `NTAG`s. `NTAG`s (simil
 
 First clone the repo and add your dependences (you will need Python and Pip):
 
-```
+``` 
 git clone [this repo]
 cd [this repo]
 pip install -r requirements.txt
@@ -34,7 +34,8 @@ In the main folder, create a `spotify_config.json` file (`touch spotify_config.j
         "user-top-read",
         "playlist-read-private"
     ],
-    "TAG_TYPE": "NTAG"
+    "TAG_TYPE": "NTAG",
+    "TIME_WAIT": 5
 }
 ```
 
